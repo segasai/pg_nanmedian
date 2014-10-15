@@ -1,10 +1,10 @@
 This module provides a set of  PostgreSQL functions
 
-double precision nanmedian(double precision[])
-real nanmedian(real [])
-which return the median while ignoring nans
+* double precision nanmedian(double precision[])
+* real nanmedian(real [])
 
-And also functions
-double precision nanmad(double precision[])
-real nanmad(real [])
-which return the median absolute deviations in the arrays
+which return the median of array ignoring NaNs
+
+* double precision nanmad(double precision[])
+* real nanmad(real [])
+which return median absolute deviations (MAD) of the arrays (ignoring NaNs)
