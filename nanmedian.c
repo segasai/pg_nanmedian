@@ -46,9 +46,77 @@ PG_MODULE_MAGIC;
 /* Postgres functions */
 Datum pgnanmedian_f8(PG_FUNCTION_ARGS);
 Datum pgnanmedian_f4(PG_FUNCTION_ARGS);
+Datum pgnanmad_f8(PG_FUNCTION_ARGS);
+Datum pgnanmad_f4(PG_FUNCTION_ARGS);
+
 //Datum pgnanmad(PG_FUNCTION_ARGS);
 
 #define MAXNEL 100
+
+static float8 median_f8(float8 *procarr, int nc)
+{
+	int i, j, tmpi;
+	float8 tmp;
+	if (nc == 0)
+	{
+		return NAN;
+	}
+	for (i=1; i<nc; i++)
+	{
+		tmp = procarr[i];
+		j = i;
+		while( (j > 0) && (procarr[j - 1] > tmp))
+		{
+			procarr[j] = procarr[j-1];
+			j--;
+		}
+		procarr[j] = tmp;
+	}
+
+	if ((nc % 2) == 0)
+	{
+		tmpi = nc/2;
+		return ((procarr[tmpi] + procarr[tmpi -1])/2);
+	}
+	else
+	{
+		tmpi= nc/2;
+		return (procarr[tmpi]);	
+	}
+}
+
+static float4 median_f4(float4 *procarr, int nc)
+{
+	int i, j, tmpi;
+	float8 tmp;
+	if (nc == 0)
+	{
+		return NAN;
+	}
+	for (i=1; i<nc; i++)
+	{
+		tmp = procarr[i];
+		j = i;
+		while( (j > 0) && (procarr[j - 1] > tmp))
+		{
+			procarr[j] = procarr[j-1];
+			j--;
+		}
+		procarr[j] = tmp;
+	}
+
+	if ((nc % 2) == 0)
+	{
+		tmpi = nc/2;
+		return ((procarr[tmpi] + procarr[tmpi -1])/2);
+	}
+	else
+	{
+		tmpi= nc/2;
+		return (procarr[tmpi]);	
+	}
+}
+
 
 PG_FUNCTION_INFO_V1(pgnanmedian_f8);
 Datum pgnanmedian_f8(PG_FUNCTION_ARGS)
@@ -62,8 +130,7 @@ Datum pgnanmedian_f8(PG_FUNCTION_ARGS)
 	bool *nullsp;
 	int nelemsp;
 	int nc, i, j;
-	double procarr[MAXNEL],tmp;
-	int tmpi;
+	float8 procarr[MAXNEL],tmp;
 	arr = PG_GETARG_ARRAYTYPE_P(0); 	
 	//poly_nitems = ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr));
 	elmtype = FLOAT8OID;
@@ -86,32 +153,7 @@ Datum pgnanmedian_f8(PG_FUNCTION_ARGS)
 	pfree(elemsp);
 	pfree(nullsp);
 
-	if (nc == 0)
-	{
-		PG_RETURN_FLOAT8(NAN);
-	}
-	for (i=1; i<nc; i++)
-	{
-		tmp = procarr[i];
-		j = i;
-		while( (j > 0) && (procarr[j - 1] > tmp))
-		{
-			procarr[j] = procarr[j-1];
-			j--;
-		}
-		procarr[j] = tmp;
-	}
-
-	if ((nc % 2) == 0)
-	{
-		tmpi = nc/2;
-		PG_RETURN_FLOAT8((procarr[tmpi] + procarr[tmpi -1])/2);
-	}
-	else
-	{
-		tmpi= nc/2;
-		PG_RETURN_FLOAT8(procarr[tmpi]);	
-	}
+	PG_RETURN_FLOAT8(median_f8(procarr, nc));
 }
 
 
@@ -129,7 +171,6 @@ Datum pgnanmedian_f4(PG_FUNCTION_ARGS)
 	int nelemsp;
 	int nc, i, j;
 	float4 procarr[MAXNEL],tmp;
-	int tmpi;
 	arr = PG_GETARG_ARRAYTYPE_P(0); 	
 	//poly_nitems = ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr));
 	elmtype = FLOAT4OID;
@@ -152,31 +193,98 @@ Datum pgnanmedian_f4(PG_FUNCTION_ARGS)
 	pfree(elemsp);
 	pfree(nullsp);
 
-	if (nc == 0)
+	PG_RETURN_FLOAT4(median_f4(procarr, nc));
+}
+
+
+PG_FUNCTION_INFO_V1(pgnanmad_f8);
+Datum pgnanmad_f8(PG_FUNCTION_ARGS)
+{
+	ArrayType  *arr;
+	Oid elmtype;
+	int16 elmlen;
+	bool elmbyval;
+	char elmalign;
+	Datum *elemsp;
+	bool *nullsp;
+	int nelemsp;
+	int nc, i, j;
+	float8 procarr[MAXNEL],tmp;
+	float8 med;
+	arr = PG_GETARG_ARRAYTYPE_P(0); 	
+	//poly_nitems = ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr));
+	elmtype = FLOAT8OID;
+	get_typlenbyvalalign(elmtype, &elmlen, &elmbyval, &elmalign);
+	deconstruct_array(arr, elmtype, elmlen, elmbyval, elmalign,
+			 &elemsp, &nullsp, &nelemsp);
+	if (nelemsp > MAXNEL)
 	{
-		PG_RETURN_FLOAT4(NAN);
+		elog(ERROR, "Too many elements -- dont support");
 	}
-	for (i=1; i<nc; i++)
+	for (i=0, j=0; i < nelemsp; i++)
 	{
-		tmp = procarr[i];
-		j = i;
-		while( (j > 0) && (procarr[j - 1] > tmp))
-		{
-			procarr[j] = procarr[j-1];
-			j--;
-		}
-		procarr[j] = tmp;
+		if (nullsp[i]) { continue; }
+		tmp = DatumGetFloat8(elemsp[i]);
+		if isnan(tmp) { continue;}
+		procarr[j++] = tmp;
 	}
-	if ((nc % 2) == 0)
+	nc = j;
+
+	pfree(elemsp);
+	pfree(nullsp);
+
+	med = median_f8(procarr, nc);
+	for (i=0;i<nc;i++)
 	{
-		tmpi = nc/2;
-		PG_RETURN_FLOAT4((procarr[tmpi] + procarr[tmpi -1])/2);
+	    procarr[i] = fabs(procarr[i]-med);
 	}
-	else
+	PG_RETURN_FLOAT8(median_f8(procarr, med));
+}
+
+
+
+PG_FUNCTION_INFO_V1(pgnanmad_f4);
+Datum pgnanmad_f4(PG_FUNCTION_ARGS)
+{
+	ArrayType  *arr;
+	Oid elmtype;
+	int16 elmlen;
+	bool elmbyval;
+	char elmalign;
+	Datum *elemsp;
+	bool *nullsp;
+	int nelemsp;
+	int nc, i, j;
+	float4 procarr[MAXNEL], med,tmp;
+	arr = PG_GETARG_ARRAYTYPE_P(0); 	
+	//poly_nitems = ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr));
+	elmtype = FLOAT4OID;
+	get_typlenbyvalalign(elmtype, &elmlen, &elmbyval, &elmalign);
+	deconstruct_array(arr, elmtype, elmlen, elmbyval, elmalign,
+			 &elemsp, &nullsp, &nelemsp);
+	if (nelemsp > MAXNEL)
 	{
-		tmpi= nc/2;
-		PG_RETURN_FLOAT4(procarr[tmpi]);	
+		elog(ERROR, "Too many elements -- dont support");
 	}
+	for (i=0, j=0; i < nelemsp; i++)
+	{
+		if (nullsp[i]) { continue; }
+		tmp = DatumGetFloat4(elemsp[i]);
+		if isnan(tmp) { continue;}
+		procarr[j++] = tmp;
+	}
+	nc = j;
+
+	pfree(elemsp);
+	pfree(nullsp);
+
+	med = median_f4(procarr, nc);
+	for (i=0;i<nc;i++)
+	{
+	    procarr[i]=fabs(procarr[i]-med);
+	}
+	PG_RETURN_FLOAT4(median_f4(procarr, med));
+
 }
 
 
