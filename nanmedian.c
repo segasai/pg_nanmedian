@@ -236,9 +236,10 @@ Datum pgnanmad_f8(PG_FUNCTION_ARGS)
 	med = median_f8(procarr, nc);
 	for (i=0;i<nc;i++)
 	{
-	    procarr[i] = fabs(procarr[i]-med);
+	    procarr[i] = fabs(procarr[i] - med);
 	}
-	PG_RETURN_FLOAT8(median_f8(procarr, med));
+	med = median_f8(procarr, nc);
+	PG_RETURN_FLOAT8(med);
 }
 
 
@@ -255,7 +256,7 @@ Datum pgnanmad_f4(PG_FUNCTION_ARGS)
 	bool *nullsp;
 	int nelemsp;
 	int nc, i, j;
-	float4 procarr[MAXNEL], med,tmp;
+	float4 procarr[MAXNEL], med, tmp;
 	arr = PG_GETARG_ARRAYTYPE_P(0); 	
 	//poly_nitems = ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr));
 	elmtype = FLOAT4OID;
@@ -281,10 +282,10 @@ Datum pgnanmad_f4(PG_FUNCTION_ARGS)
 	med = median_f4(procarr, nc);
 	for (i=0;i<nc;i++)
 	{
-	    procarr[i]=fabs(procarr[i]-med);
+	    procarr[i] = fabs(procarr[i] - med);
 	}
-	PG_RETURN_FLOAT4(median_f4(procarr, med));
-
+	med = median_f4(procarr, nc);
+	PG_RETURN_FLOAT4(med);
 }
 
 

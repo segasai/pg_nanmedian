@@ -7,7 +7,7 @@ OPT=-O3
 OPT_LOW=-O2
 #DEBUG=-g3 -ggdb -DQ3C_DEBUG
 
-PG_CPPFLAGS =  $(DEBUG) $(OPT) -D_GNU_SOURCE -D__STDC_FORMAT_MACROS
+PG_CPPFLAGS =  $(DEBUG) $(OPT) -D_GNU_SOURCE -D__STDC_FORMAT_MACROS -Wall
 SHLIB_LINK += $(filter -lm, $(LIBS))
 #EXTRA_CLEAN=dump.c prepare prepare.o
 
