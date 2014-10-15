@@ -17,4 +17,19 @@ CREATE OR REPLACE FUNCTION nanmedian(vals real[])
 COMMENT ON FUNCTION nanmedian (vals real[])
 	IS 'get the median of an array';
 
+CREATE OR REPLACE FUNCTION nanmad(vals double precision[])
+        RETURNS double precision
+        AS 'MODULE_PATHNAME', 'pgnanmad_f8'
+        LANGUAGE C IMMUTABLE;
+
+COMMENT ON FUNCTION nanmad (vals double precision[])
+	IS 'get the median absolute deviation of an array';
+
+CREATE OR REPLACE FUNCTION nanmad(vals real[])
+        RETURNS real
+        AS 'MODULE_PATHNAME', 'pgnnanmad_f4'
+        LANGUAGE C IMMUTABLE;
+COMMENT ON FUNCTION nanmad (vals real[])
+	IS 'get the median absolute deviation of an array';
+
 commit;
