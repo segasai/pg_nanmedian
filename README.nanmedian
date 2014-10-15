@@ -1,0 +1,3 @@
+This module provides
+the PostgreSQL function nanmedian(double precision[])
+which returns the median while ignoring nans
