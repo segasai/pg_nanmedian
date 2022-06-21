@@ -1,7 +1,7 @@
 MODULE_big=nanmedian
 OBJS=nanmedian.o
 DATA_built=nanmedian.sql
-DOCS=README.nanmedian
+DOCS=README
 
 OPT=-O3
 OPT_LOW=-O2

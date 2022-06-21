@@ -145,7 +145,7 @@ Datum pgnanmedian_f8(PG_FUNCTION_ARGS)
 	{
 		if (nullsp[i]) { continue; }
 		tmp = DatumGetFloat8(elemsp[i]);
-		if isnan(tmp) { continue;}
+		if (isnan(tmp)) { continue;}
 		procarr[j++] = tmp;
 	}
 	nc = j;
@@ -185,7 +185,7 @@ Datum pgnanmedian_f4(PG_FUNCTION_ARGS)
 	{
 		if (nullsp[i]) { continue; }
 		tmp = DatumGetFloat4(elemsp[i]);
-		if isnan(tmp) { continue;}
+		if (isnan(tmp)) { continue;}
 		procarr[j++] = tmp;
 	}
 	nc = j;
@@ -225,7 +225,7 @@ Datum pgnanmad_f8(PG_FUNCTION_ARGS)
 	{
 		if (nullsp[i]) { continue; }
 		tmp = DatumGetFloat8(elemsp[i]);
-		if isnan(tmp) { continue;}
+		if (isnan(tmp)) { continue;}
 		procarr[j++] = tmp;
 	}
 	nc = j;
@@ -271,7 +271,7 @@ Datum pgnanmad_f4(PG_FUNCTION_ARGS)
 	{
 		if (nullsp[i]) { continue; }
 		tmp = DatumGetFloat4(elemsp[i]);
-		if isnan(tmp) { continue;}
+		if (isnan(tmp)) { continue;}
 		procarr[j++] = tmp;
 	}
 	nc = j;
